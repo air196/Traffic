@@ -46,12 +46,12 @@ namespace Traffic
             for (var i = 0; i < Travels.Count; i++)
             {
                 if (i == 0 || Travels[i].BusId != Travels[i - 1].BusId)
-                    sb.Append(" (автобус №" + Travels[i].BusId + " " + Travels[i].Cost + " у.е.) " + Travels[i].FromId);
+                    sb.Append(" (автобус №" + Travels[i].BusId + " " + Travels[i].Cost + " руб.) " + Travels[i].FromId);
                 sb.Append("->" + Travels[i].ToId);
             }
             sb.Append(" " + EndTime.ToString().Substring(0, EndTime.ToString().Length - 3));
             sb.Append("\nОбщая длительность поездки: " + TravelLength.ToString().Substring(0, TravelLength.ToString().Length - 3));
-            sb.Append("\nОбщая стоимость поездки: " + TotalCost + " у.е.");
+            sb.Append("\nОбщая стоимость поездки: " + TotalCost + " руб.");
             return sb.ToString();
         }
     }
