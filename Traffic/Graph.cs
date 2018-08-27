@@ -62,10 +62,10 @@ namespace Traffic
                                 BusId = travelinfo.BusId,
                                 FromId = startBusStopStopId,
                                 ToId = g.Key,
+                                WaitTime = new TimeSpan(0,0,0),
+                                TravelTime = travelinfo.Time,
                                 Cost = travelinfo.Cost
-                            },
-                            GetNextBusStopTime(travelinfo.BusId, startBusStopStopId, travelStartTime),
-                            travelinfo.Time);
+                            }, GetNextBusStopTime(travelinfo.BusId, startBusStopStopId, travelStartTime));
                             if (wayInfo.Travels.Where(b => (b.ToId == g.Key ? true : false)).Count() == 1)
                                 if (wayInfo.Travels.Last().ToId == targetBusStopId)
                                     res.Add(new WayInfo(wayInfo));
@@ -94,11 +94,12 @@ namespace Traffic
                                         BusId = travelinfo.BusId,
                                         FromId = fromBusStopId,
                                         ToId = g.Key,
+                                        WaitTime = GetNextBusStopTime(travelinfo.BusId, fromBusStopId, temp.ElementAt(i).EndTime) - temp.ElementAt(i).EndTime,
+                                        TravelTime = travelinfo.Time,
                                         Cost = temp.ElementAt(i).Travels.Last().BusId == travelinfo.BusId
                                             ? 0
                                             : travelinfo.Cost
-                                    },
-                                    travelinfo.Time);
+                                    });
                                 if (wayInfo.Travels.Where(b => (b.FromId == g.Key ? true : false)).Count() == 0)
                                     if (wayInfo.Travels.Last().ToId == targetBusStopId)
                                         res.Add(new WayInfo(wayInfo));
@@ -122,9 +123,13 @@ namespace Traffic
         {
             return Task.Run(() => {
                 List<WayInfo> waysInfo = GetWayInfos(startBusStopStopId, targetBusStopId, travelStartTime);
-                if(waysInfo.Count > 0)
-                    // выбирает только 1 из самых дешевых
-                    return waysInfo.OrderBy(info => info.TotalCost).ElementAt(0); 
+                if (waysInfo.Count > 0)
+                {
+                    var allCheapest = waysInfo.Where(w => w.TotalCost == 
+                                                          waysInfo.Min(wi => wi.TotalCost) ? true : false);
+                    return allCheapest.Where(wayinf => 
+                        wayinf.EndTime == allCheapest.Min(wayinfo => wayinfo.EndTime)).ElementAt(0);
+                }
                 else
                     return null;
             });
@@ -135,12 +140,16 @@ namespace Traffic
         {
             return Task.Run(() => {
                 List<WayInfo> waysInfo = GetWayInfos(startBusStopStopId, targetBusStopId, travelStartTime);
-                if(waysInfo.Count > 0)
-                    // выбирает только 1 из самых "быстрых"
-                    return waysInfo.OrderBy(info => info.EndTime).ElementAt(0); 
+                if (waysInfo.Count > 0)
+                {
+                    var fastest = waysInfo.Where(wayinf => wayinf.EndTime == 
+                                                           waysInfo.Min(wayinfo => wayinfo.EndTime));
+                    return fastest.Where(w => w.TotalCost == 
+                                              fastest.Min(wi => wi.TotalCost) ? true : false).ElementAt(0);
+                }  
                 else
                     return null;
-        });
+            });
         }
     }
 }

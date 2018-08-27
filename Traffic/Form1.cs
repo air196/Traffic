@@ -157,7 +157,7 @@ namespace Traffic
                 int hours = -1;
                 if (int.TryParse(minutes_comboBox.Text, out minutes)
                     && int.TryParse(hours_comboBox.Text, out hours))
-                    if (minutes != hours && minutes_comboBox.Items.Contains(minutes)
+                    if (minutes_comboBox.Items.Contains(minutes)
                         && hours_comboBox.Items.Contains(hours))
                         timeCorrect = true;
             }
